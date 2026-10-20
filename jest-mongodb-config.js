@@ -6,6 +6,7 @@ module.exports = {
     },
     instance: {
       dbName: 'jest',
+      storageEngine: 'wiredTiger',
     },
     autoStart: false,
   },

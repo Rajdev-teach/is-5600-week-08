@@ -1,4 +1,4 @@
-const { create, get, list, edit } = require('../orders');
+const { create, get, list, edit, destroy } = require('../orders');
 const orderData = require('../data/order1.json');
 const productTestHelper = require('./test-utils/productTestHelper');
 
@@ -15,6 +15,7 @@ describe('Orders Module', () => {
   });
 
   afterAll(async () => {
+    if (createdOrder) await destroy(createdOrder._id);
     await productTestHelper.cleanupTestData();
   });
 
