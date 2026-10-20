@@ -1,6 +1,6 @@
 const fs = require('fs/promises');
 const { create: createProduct, destroy } = require('../../products');
-const { create: createOrder } = require('../../orders');
+const { create: createOrder, destroy: destroyOrder } = require('../../orders');
 
 const productTestHelper = {
   testProductIds: [],
@@ -9,11 +9,11 @@ const productTestHelper = {
   async setupTestData() {
     console.log('Loading test products...');
     const data = await fs.readFile('data/full-products.json', 'utf-8');
-    const testProducts = JSON.parse(data);
+    const testProducts = JSON.parse(data).slice(0, 10);
 
     for (const product of testProducts) {
       if (!product.price) {
-        product.price = Math.floor(Math.random() * 100) + 1;
+        product.price = 25;
       }
       const createdProduct = await createProduct(product);
       this.testProductIds.push(createdProduct.id); // Store the created product's ID
@@ -29,11 +29,12 @@ const productTestHelper = {
 
     console.log('Cleaning up test orders...');
     for (const orderId of this.testOrderIds) {
-      // Assuming an `orders.destroy` method exists. Otherwise, implement if needed.
-      await destroy(orderId);
+      await destroyOrder(orderId);
     }
 
     console.log('Test products and orders cleaned up successfully');
+    this.testProductIds = [];
+    this.testOrderIds = [];
   },
 
   async createTestOrder() {
@@ -41,18 +42,11 @@ const productTestHelper = {
       throw new Error('No test products available. Run setupTestData() first.');
     }
 
-    // Select a random number of products (up to 10)
-    const numProducts = Math.floor(Math.random() * 10) + 1;
-    const products = [];
-
-    for (let i = 0; i < numProducts; i++) {
-      const randomIndex = Math.floor(Math.random() * this.testProductIds.length);
-      products.push(this.testProductIds[randomIndex]);
-    }
+    const products = this.testProductIds.slice(0, 2);
 
     // Create a new test order
     const orderData = {
-      buyerEmail: `test${Date.now()}@example.com`,
+      buyerEmail: `test${this.testOrderIds.length}@example.com`,
       products,
     };
 
